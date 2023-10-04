@@ -1,6 +1,11 @@
 from gmcmarketing.settings import *
 from decouple import config
 
+
+DEBUG = False
+
+ALLOWED_HOSTS = ['http://web-production-0f4e.up.railway.app/']
+
 SECRET_KEY = config('SECRET_KEY')
 
 # Production database settings
