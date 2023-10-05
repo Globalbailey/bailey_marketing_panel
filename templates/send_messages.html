@@ -57,6 +57,32 @@
     </div>
 </div>
 <!-- Add your JavaScript code here -->
+
+  <script>
+         {% if messages_delivered %}
+                    $('.loading-area').removeClass('active');
+
+         {% endif %}
+    {% if failed %}
+                    $('.loading-area').removeClass('active');
+
+         {% endif %}
+
+                {% if success %}
+                    $('.loading-area').removeClass('active');
+
+         {% endif %}
+
+$(document).ready(function () {
+    // Display success toast if 'success' variable is set in the context
+    {% if success %}
+    showToast("WhatsApp automation completed successfully! ", 'success');
+    {% endif %}
+
+
+});
+</script>
+
 <script>
 $(document).ready(function () {
     $('#whatsapp-button').on('click', function () {

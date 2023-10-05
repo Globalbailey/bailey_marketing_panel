@@ -38,7 +38,6 @@ class Country(models.Model):
     intl_country_code = models.CharField(max_length=2)
     country_code = models.CharField(max_length=3)
     valid_country = models.CharField(max_length=2)
-    re = models.CharField(max_length=255)
 
     def __str__(self):
         return f"{self.country_name} ({self.intl_country_code}) - {self.google_url}"
@@ -52,21 +51,24 @@ class City(models.Model):
 
 
 class PrimaryContact(models.Model):
-    name = models.CharField(max_length=255)
-    contact_type = models.CharField(max_length=255)
-    address = models.TextField()
-    phone = models.CharField(max_length=20)
+    name = models.CharField(max_length=255, null=True, blank=True)
+    contact_type = models.CharField(max_length=255, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    phone = models.CharField(max_length=20, null=True, blank=True)
     phone_source = models.CharField(max_length=20, default='search')
-    website = models.URLField(max_length=150)
-    message = models.TextField()
+    website = models.URLField(max_length=150, null=True, blank=True)
+    message = models.TextField(null=True, blank=True)
     status = models.CharField(max_length=50, default="ready")
     message_status = models.CharField(max_length=20, default='Default')
 
+    class Meta:
+        db_table = 'primarycontact'
+
 
 class WebPageTemp(models.Model):
-    title = models.CharField(max_length=150)
-    website_link = models.URLField()
-    page_link = models.URLField()
+    title = models.CharField(max_length=150, null=True, blank=True)
+    website_link = models.URLField(null=True, blank=True)
+    page_link = models.URLField(null=True, blank=True)
     Sub_Heading = models.JSONField()
 
     def __str__(self):
@@ -74,8 +76,8 @@ class WebPageTemp(models.Model):
 
 
 class FacebookPageTemp(models.Model):
-    title = models.CharField(max_length=150)
-    page_link = models.URLField()
+    title = models.CharField(max_length=150, null=True, blank=True)
+    page_link = models.URLField( null=True, blank=True)
     source = models.CharField(max_length=50,
                               default='search')
 
@@ -84,7 +86,7 @@ class FacebookPageTemp(models.Model):
 
 
 class MessangerPrimary(models.Model):
-    title = models.CharField(max_length=150)
+    title = models.CharField(max_length=150, null=True, blank=True)
     messenger_link = models.URLField(unique=True)
     source = models.CharField(max_length=20, default='search')
     message = models.TextField()

@@ -823,35 +823,13 @@ class StartWhatsAppAutomation(LoginRequiredMixin, View):
 
         driver.quit()
 
-        add_to_messanger = PrimaryContact.objects.filter(status='failed')
-
-        for contact in add_to_messanger:
-            title = contact.name
-            message = contact.message
-            website_url = contact.website
-            message_status = contact.message_status
-            print('contacts_to_add_in_messanger>', title)
-
-            try:
-                facebook_page_url = facebook_page_url_from_website(website_url)
-                print('fburl>', facebook_page_url)
-
-                if facebook_page_url:
-                    create_contact = create_messenger_contact(title, facebook_page_url, message, message_status,
-                                                              source='website')
-                    if create_contact == 'success':
-                        PrimaryContact.objects.filter(website=website_url).delete()
-
-            except Exception as e:
-                error = str(e)
-
         # Return a JSON response with the results
         response_data = {
             "success": True,
             "total_contacts": total_contacts,
             "messages_delivered": messages_delivered,
             "failed": failed,
-            "error": error,
+
         }
         return JsonResponse(response_data)
 
@@ -1054,3 +1032,44 @@ class LoginView(View):
         error_message = 'Invalid username or password. Please try again.'
 
         return render(request, 'login.html', {'form': form, 'error_message': error_message})
+
+
+class FailedContactsView(LoginRequiredMixin, View):
+    template_name = 'failed_contacts.html'
+
+    def get(self, request):
+        failed_contacts = PrimaryContact.objects.filter(status='failed')
+        context = {'failed_contacts': failed_contacts}
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+
+        add_to_messanger = PrimaryContact.objects.filter(status='failed')
+        error = None
+
+        for contact in add_to_messanger:
+            title = contact.name
+            message = contact.message
+            website_url = contact.website
+            message_status = contact.message_status
+            print('contacts_to_add_in_messanger>', title)
+
+            try:
+                facebook_page_url = facebook_page_url_from_website(website_url)
+
+                if facebook_page_url:
+                    create_contact = create_messenger_contact(title, facebook_page_url, message, message_status,
+                                                              source='website')
+                    if create_contact == 'success':
+                        PrimaryContact.objects.filter(website=website_url).delete()
+
+            except Exception as e:
+                error = str(e)
+                print(error)
+
+        data = {
+            "success": True,
+            'message': 'Action performed successfully',
+            'error': error
+        }
+        return JsonResponse(data)

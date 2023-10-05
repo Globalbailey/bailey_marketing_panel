@@ -16,119 +16,43 @@
     </div>
 </div>
     <div class="auto-research-container">
-        <h2>Find Pages</h2>
-        <form method="post" action="{% url 'web_scraping' %}">
-            {% csrf_token %}
-
-            <div class="form-group">
-                <div class="input-group">
-                    <input type="text" id="query" name="query" class="form-control" placeholder="eg. Dental Clinics" required>
-                    <div class="input-group-append">
-                        <select id="search-type" name="search_type" class="form-control">
-                            <option value="facebook">FB Pages</option>
-                            <option value="web">Web Pages</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="dropdowns-group">
-            <div class="form-group">
-                <select id="country" name="country" class="form-control select-dropdown" required>
-                    <option value="" disabled selected>Select a country</option>
-                    {% for country in countries %}
-                        <option value="{{ country.country_name }}">{{ country.country_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="form-group">
-                <select id="city" name="city" class="form-control select-dropdown" required>
-                    <option value="" disabled selected>Select a city</option>
-                    {% for city in cities %}
-                        <option value="{{ city.city_name }}">{{ city.city_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary" id="find-pages-button">Find Pages</button>
-         </div>
-        </form>
+        <h3>Failed Contacts</h3>
         </div>
-<!-- Your HTML Structure -->
-      {% if webdata %}
+
+  {% if failed_contacts %}
 <div class = "table_card">
-    <p>{{ web_data_temp|length }} Web pages have been found.</p>
-<div class="web-table">
+    <p>{{ failed_contacts|length }} Contacts with failed status.</p>
+<div class="wa-failed-table">
+ <table id="wa-failed-data-table" class="custom-table">
 
- <table id="web-data-table" class="custom-table">
-    <button class="export-button" data-id="{{ result.id }}" data-table-id="web-data-table" style="display: none;">Export Selected</button>
-
-    <thead>
-        <tr>
-            <th>Select</th>
-            <th>SNO.</th>
-            <th>Title</th>
-            <th>Website</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for result in web_data_temp %}
-        <tr data-id="{{ result.id }}">
-            <td><input type="checkbox" class="select-row" data-id="{{ result.id }}"></td>
-            <td><span data-id="{{ result.id }}" data-field="id">{{ forloop.counter }}</span></td>
-            <td><span class="editable" data-field="title"><a href ='{{ result.page_link }}' target="_blank">{{ result.title }}</a></span></td>
-            <td><span class="editable" data-field="website_link" id="website-link2" >{{ result.website_link }}</span></td>
-            <td>
-                <button class="edit-button" data-id="{{ result.id }}">Edit</button>
-                <button class="save-button" data-id="{{ result.id }}" style="display: none;">Save</button>
-<button class="delete-button" data-id="{{ result.id }}" data-table-id="web-data-table" onclick="confirmDelete({{ result.id }})">Delete</button>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-</div> </div>
-    {% endif %}
-
-  {% if fbdata %}
-<div class = "table_card">
-    <p>{{ fb_data_temp|length }} Facebook Pages have been found.</p>
-<div class="fb-table">
- <table id="facebook-data-table" class="custom-table">
-
-     <button class="export-button" data-id="{{ result.id }}" data-table-id="facebook-data-table" style="display: none;">Export Selected</button>
-    <thead>
+  <thead>
         <tr>
             <th>Select</th>
             <th>SNO.</th>
             <th>Title</th>
             <th>Page Link</th>
             <th>Source</th>
-            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        {% for result in fb_data_temp %}
+        {% for result in failed_contacts %}
         <tr data-id="{{ result.id }}">
             <td><input type="checkbox" class="select-row" data-id="{{ result.id }}"></td>
             <td><span data-id="{{ result.id }}" data-field="id">{{ forloop.counter }}</span></td>
-            <td><span class="editable" data-field="title">{{ result.title }}</span></td>
-            <td><span class="editable" id="website-link" data-field="website_link"><a href ='{{ result.page_link }}' target="_blank">{{ result.page_link}}</a></span></td>
+            <td><span class="editable" data-field="title">{{ result.name }}</span></td>
+            <td><span class="editable" id="website-link" data-field="website_link"><a href ='{{ result.website }}' target="_blank">{{ result.website}}</a></span></td>
+              <td><span class="editable" data-field="title">{{ result.phone }}</span></td>
              <td><span>{{ result.source }}</span></td>
-            <td>
-                <button class="edit-button" data-id="{{ result.id }}">Edit</button>
-                <button class="save-button" data-id="{{ result.id }}" style="display: none;">Save</button>
-<button class="delete-button" data-id="{{ result.id }}" data-table-id="facebook-data-table" onclick="confirmDelete({{ result.id }})">Delete</button>
-            </td>
+
         </tr>
         {% endfor %}
+
     </tbody>
-</table>
+ </table>
 
 </div>
-    <button type="submit" class="btn btn-primary" onclick="createMessenger()">Create Messanger Contacts</button>
+
+    <button type="submit" class="btn btn-primary" onclick="addtoMessenger()">Add to Messanger List</button>
         {% endif %}
 
     <script>
@@ -295,13 +219,13 @@ $('.delete-button').on('click', function () {
 </script>
 
 <script>
-function createMessenger() {
+function addtoMessenger() {
     // Get the CSRF token from the cookie (Django sets it in cookies by default)
     var csrftoken = getCookie('csrftoken');
             $('.loading-area').addClass('active');
     // Send an AJAX request to trigger the server-side contact creation
     $.ajax({
-        url: '/create_messenger_contact/',  // URL for the Django view
+        url: '{% url 'failed_contacts' %}',  // URL for the Django view
         method: 'POST',
         headers: {
             'X-CSRFToken': csrftoken  // Include the CSRF token in the request headers
@@ -310,21 +234,22 @@ function createMessenger() {
             // Include any data needed for contact creation here
             // For example, you can send selected Facebook page links
         },
-        success: function (response) {
-            if (response.success) {
+        success: function (data) {
+            if (data.success) {
+                $('.loading-area').removeClass('active');
+                showToast(data.message, 'success');
+            } else {
                 // Display a success message
                 $('.loading-area').removeClass('active');
-                 showToast('Messenger contacts created successfully', 'success');
+                showToast('Contacts added successfully', 'error');
 
-            } else {
-                // Handle the case where contact creation fails
-                $('.loading-area').removeClass('active');
-                  showToast(response.error_message, 'error');
-            }
-        },
+                }
+            },
+
         error: function () {
             // Handle AJAX request errors
              $('.loading-area').removeClass('active');
+             showToast('An error occurred while processing the request.', 'error');
         }
     });
 }
@@ -346,39 +271,7 @@ function getCookie(name) {
     return cookieValue;
 }
 </script>
-    <script>
-      $(document).ready(function () {
-    $('#find-pages-button').on('click', function () {
-        // Show loading container when the button is clicked
-        $('.loading-area').addClass('active');
 
-        $.ajax({
-            url: '{% url "web_scraping" %}',  // Update with your URL
-            method: 'POST',
-            data: {
-                query: $('#query').val(),
-                search_type: $('#search-type').val(),
-                country: $('#country').val(),
-                city: $('#city').val(),
-                csrfmiddlewaretoken: '{{ csrf_token }}',
-            },
-            success: function (response) {
-                // Handle the response as needed
-            },
-            error: function (error) {
-                // Handle errors
-                console.log(error);
-
-            },
-            complete: function () {
-                // Hide loading container when the request is complete (success or error)
-            }
-        });
-    });
-});
-
-
-    </script>
 
     </div>
 {% endblock %}

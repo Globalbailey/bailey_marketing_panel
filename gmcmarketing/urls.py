@@ -29,7 +29,7 @@ from gmcapp.views import (
     EditRecordView,
     ExportSelectedRecordsView,
     CreateMessengerContactView,
-    StartWhatsAppAutomation, StartMessangerAutomation, DashboardView,
+    StartWhatsAppAutomation, StartMessangerAutomation, DashboardView, FailedContactsView,
 )
 
 urlpatterns = [
@@ -49,6 +49,7 @@ urlpatterns = [
     path('edit_cities/', views.CityListView.as_view(), name='edit_cities'),
     path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('failed-contacts/', FailedContactsView.as_view(), name='failed_contacts'),
 
 ]
 

@@ -222,7 +222,7 @@ body, table {
     text-decoration: none; /* Remove underlines from truncated links */
     color: #007bff; /* Change link color as needed */
 }
-     #website-link2 {
+     #website-link2, #website-link1 {
             max-width: 200px; /* Adjust the maximum width as needed */
             white-space: nowrap;
             overflow: hidden;
@@ -230,7 +230,7 @@ body, table {
             display: inline-block;
         }
 
-#website-link2 {
+#website-link2, #website-link1 {
     text-decoration: none; /* Remove underlines from truncated links */
     color: #007bff; /* Change link color as needed */
 }
