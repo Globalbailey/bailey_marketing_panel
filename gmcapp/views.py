@@ -13,6 +13,7 @@ from gmcapp.utils.create_messenger_contact import create_messenger_contact
 from .forms import OpenAIAPIForm, SerpAPIForm, MessageTemplateForm
 from serpapi import GoogleSearch
 import re
+from webdriver_manager import chrome
 from gmcapp.utils.generate_excel_file import generate_excel_file
 from gmcapp.utils.message_generation import generate_unique_message
 from .models import OpenAIAPI, SerpAPI, Country, City, PrimaryContact, WebPageTemp, FacebookPageTemp, MessangerPrimary, \
@@ -717,8 +718,12 @@ class StartWhatsAppAutomation(LoginRequiredMixin, View):
         image = request.FILES.get("image")
         # now = datetime.datetime.now()
         # hour = now.hour
-        # minute = now.minute + 2  # Send messages 2 minutes from now
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+        # Check if the ChromeDriver version is installed, if not, it will be installed.
+        chrome.ChromeDriverManager(chrome_type=chrome.ChromeType.CHROMIUM).install()
+
+        # Initialize WebDriver using ChromeDriverManager
+        driver = webdriver.Chrome()
+
         # Get all contacts with a status of "ready"
         contacts = PrimaryContact.objects.filter(status="ready")
 
