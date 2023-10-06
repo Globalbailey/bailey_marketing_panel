@@ -13,14 +13,11 @@ from gmcapp.utils.create_messenger_contact import create_messenger_contact
 from .forms import OpenAIAPIForm, SerpAPIForm, MessageTemplateForm
 from serpapi import GoogleSearch
 import re
-from webdriver_manager import chrome
 from gmcapp.utils.generate_excel_file import generate_excel_file
 from gmcapp.utils.message_generation import generate_unique_message
 from .models import OpenAIAPI, SerpAPI, Country, City, PrimaryContact, WebPageTemp, FacebookPageTemp, MessangerPrimary, \
     MessageTemplate
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -716,12 +713,7 @@ class StartWhatsAppAutomation(LoginRequiredMixin, View):
 
     def post(self, request):
         image = request.FILES.get("image")
-        # now = datetime.datetime.now()
-        # hour = now.hour
-        # Check if the ChromeDriver version is installed, if not, it will be installed.
-        chrome.ChromeDriverManager(chrome_type=chrome.ChromeType.CHROMIUM).install()
 
-        # Initialize WebDriver using ChromeDriverManager
         driver = webdriver.Chrome()
 
         # Get all contacts with a status of "ready"
@@ -843,7 +835,7 @@ class StartMessangerAutomation(LoginRequiredMixin, View):
 
     def post(self, request):
         image = request.FILES.get("image")
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+        driver = webdriver.Chrome()
 
         contacts = MessangerPrimary.objects.filter(status="ready")
 

@@ -7,6 +7,14 @@ CSRF_TRUSTED_ORIGINS = ['https://web-gmc.up.railway.app']
 
 SECRET_KEY = config('SECRET_KEY')
 
+# Get the base directory of your Django project
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Set the path to Chromedriver executable
+CHROMEDRIVER_PATH = os.path.join(BASE_DIR, 'bin', 'chromedriver')
+
+# Set the path to Chrome browser binary
+GOOGLE_CHROME_BIN = os.path.join(BASE_DIR, 'bin', 'chrome')
 
 # Production database settings
 DATABASES = {
