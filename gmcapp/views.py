@@ -8,6 +8,9 @@ from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service as ChromeService
+
 from gmcapp.utils.default_message import get_default_message
 from gmcapp.utils.create_messenger_contact import create_messenger_contact
 from .forms import OpenAIAPIForm, SerpAPIForm, MessageTemplateForm
@@ -26,6 +29,7 @@ from gmcapp.utils.scrape_facebook_page import facebook_page_url_from_website
 from gmcapp.utils.scrape_mobile_numbers import scrape_mobile_numbers_from_website
 from gmcapp.utils.validate_fb_url import is_facebook_url
 from gmcapp.utils.validate_number import format_phone_number
+from .utils.config import Chrome_path
 
 
 def get_all_objects():
@@ -714,7 +718,10 @@ class StartWhatsAppAutomation(LoginRequiredMixin, View):
     def post(self, request):
         image = request.FILES.get("image")
 
-        driver = webdriver.Chrome()
+        options = webdriver.ChromeOptions()
+        options.add_argument(Chrome_path)
+
+        driver = webdriver.Chrome(options=options)
 
         # Get all contacts with a status of "ready"
         contacts = PrimaryContact.objects.filter(status="ready")
@@ -835,7 +842,12 @@ class StartMessangerAutomation(LoginRequiredMixin, View):
 
     def post(self, request):
         image = request.FILES.get("image")
-        driver = webdriver.Chrome()
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument('--headless')  # Run in headless mode (no GUI)
+        chrome_options.add_argument('--disable-gpu')  # Disable GPU acceleration
+        chrome_options.add_argument('--no-sandbox')  # Disable sandboxing for remote executio
+
+        driver = webdriver.Chrome(options=chrome_options)
 
         contacts = MessangerPrimary.objects.filter(status="ready")
 
@@ -848,7 +860,19 @@ class StartMessangerAutomation(LoginRequiredMixin, View):
         last_recipient = ''
         link = 'https://www.messenger.com/'
         driver.get(link)
-        time.sleep(45)
+        time.sleep(5)
+
+        email_field = driver.find_element(By.ID, 'email')
+        email_field.send_keys('03425790564')
+
+        password_field = driver.find_element(By.ID, 'pass')
+        password_field.send_keys('bilalblogger734')  # Replace with your password
+
+        # Find the login button and click it
+        login_button = driver.find_element(By.ID,'loginbutton')  # Replace 'loginbutton' with the actual element ID
+        login_button.click()
+        print("logged-in")
+        time.sleep(15)
 
         # Check if an image is provided in the request
         if image:
