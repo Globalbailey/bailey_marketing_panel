@@ -8,8 +8,6 @@ from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service as ChromeService
 
 from gmcapp.utils.default_message import get_default_message
 from gmcapp.utils.create_messenger_contact import create_messenger_contact
