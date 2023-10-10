@@ -48,7 +48,7 @@ body{
   }
 
   .sidebar{
-    background:#444;
+    background:#000000;
     margin-top:70px;
     padding-top:30px;
     position:fixed;
@@ -63,14 +63,10 @@ body{
     width:120px;
     height:120px;
     border-radius:60px;
-    margin-bottom:10px;
+    margin-bottom:20px;
   }
 
-  .sidebar h4{
-    color:#ccc;
-    margin-top:0;
-    margin-bottom:10px;
-  }
+
 
   .sidebar a{
     color:#fff;
@@ -124,7 +120,7 @@ body{
 
   .content{
     margin-left:350px;
-    background: #333437;
+    background: #171616;
     transition:0.5s;
     max-width: 850px;
   }

@@ -65,7 +65,7 @@ textarea {
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
-    background-color:#333437;
+    background-color:#000000;
 }
 
 button.btn {
@@ -107,12 +107,12 @@ button.btn:hover {
 
 /* Dark mode styles */
 body {
-    background-color: #333; /* Dark background color */
+    background-color: #171616; /* Dark background color */
     color: #fff; /* Light text color */
 }
 
 .card {
-    background-color: #444; /* Dark card background color */
+    background-color: #000000; /* Dark card background color */
     color: #fff; /* Light card text color */
 }
 

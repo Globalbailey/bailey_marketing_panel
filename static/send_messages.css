@@ -3,7 +3,7 @@
   height: 80px;
 }
 body {
-    background-color: #333; /* Dark background color */
+    background-color: #171616; /* Dark background color */
     color: #fff; /* Light text color */
 }
 
@@ -13,7 +13,7 @@ body {
     padding: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    background: #444;
+    background: #000000;
 }
 
 .messaging-header {
@@ -107,7 +107,7 @@ body {
             padding: 20px;
             margin: 20px auto;
             text-align: center;
-            background-color: #333;
+            background-color: ##171616;
         }
 
         /* Style for the drag-and-drop text */
@@ -217,7 +217,7 @@ textarea {
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
-    background-color:#333437;
+    background-color:#171616;
 }
 
 button.btn {

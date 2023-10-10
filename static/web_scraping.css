@@ -3,14 +3,14 @@
 }
 
 body {
-    background-color: #333; /* Dark background color */
+    background-color: #171616; /* Dark background color */
     color: #fff; /* Light text color */
 }
 
 .auto-research-container {
-    background-color: #444;
+    background-color: #000000;
     border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.01);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
     padding: 30px 15px 50px 15px;
     text-align: center;
     max-width: 800px;
@@ -42,7 +42,7 @@ body {
     border-radius: 5px;
     font-size: 16px;
     color: #fff;
-    background-color: #444;
+    background-color: #000000;
     transition: border-color 0.3s ease-in-out;
 }
 
@@ -102,7 +102,7 @@ body {
     border-radius: 5px;
     font-size: 16px;
     color: #fff;
-    background-color: #444;
+    background-color: ##000000;
     transition: border-color 0.3s ease-in-out;
 }
 
@@ -144,7 +144,7 @@ body, table {
 }
 
 .table_card{
-    background-color: #444;
+    background-color: #000000;
         border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.01);
     padding: 30px 15px 50px 15px;

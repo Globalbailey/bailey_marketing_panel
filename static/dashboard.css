@@ -5,7 +5,7 @@ body, html {
     font-family: "Poppins", sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #333; /* Dark background color */
+    background-color: #171616; /* Dark background color */
     color: #fff; /* Light text color */
 }
 
@@ -19,7 +19,7 @@ body, html {
 }
 
 .card {
-    background-color: #444; /* Dark card background color */
+    background-color: #000000; /* Dark card background color */
     color: #fff; /* Light card text color */
     margin-bottom: 20px;
     border-radius: 10px;
@@ -61,7 +61,7 @@ label {
 
 /* Additional styles for the charts and chart selection */
 .chart-container {
-    background-color: #444;
+    background-color: #000000;
     color: #fff;
     padding: 20px;
     margin: 10px;
@@ -86,12 +86,12 @@ label {
 
 /* Dark mode styles */
 body {
-    background-color: #333; /* Dark background color */
+    background-color: #171616; /* Dark background color */
     color: #fff; /* Light text color */
 }
 
 .card {
-    background-color: #444; /* Dark card background color */
+    background-color: #000000; /* Dark card background color */
     color: #fff; /* Light card text color */
 }
 
@@ -141,7 +141,7 @@ body, table {
 }
 
 .table_card{
-    background-color: #444;
+    background-color: #000000;
         border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.01);
     padding: 30px 15px 50px 15px;
@@ -154,7 +154,7 @@ body, table {
 
 
 .custom-table tr:hover {
-    background-color: #444;
+    background-color: #171616;
 }
 
 /* Checkbox Styles */
