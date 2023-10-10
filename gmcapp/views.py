@@ -1,4 +1,6 @@
 import os
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.conf import settings
@@ -8,16 +10,17 @@ from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
+from selenium.webdriver.support.wait import WebDriverWait
 
 from gmcapp.utils.default_message import get_default_message
 from gmcapp.utils.create_messenger_contact import create_messenger_contact
-from .forms import OpenAIAPIForm, SerpAPIForm, MessageTemplateForm
+from .forms import OpenAIAPIForm, SerpAPIForm, MessageTemplateForm, ChromeUserDataPath
 from serpapi import GoogleSearch
 import re
 from gmcapp.utils.generate_excel_file import generate_excel_file
 from gmcapp.utils.message_generation import generate_unique_message
 from .models import OpenAIAPI, SerpAPI, Country, City, PrimaryContact, WebPageTemp, FacebookPageTemp, MessangerPrimary, \
-    MessageTemplate
+    MessageTemplate, ChromeUserData
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
@@ -34,21 +37,25 @@ def get_all_objects():
     openai_api, _ = OpenAIAPI.objects.get_or_create(pk=1)
     serp_api, _ = SerpAPI.objects.get_or_create(pk=1)
     message_template, _ = MessageTemplate.objects.get_or_create(pk=1)
+    chrome_user_path, _ = ChromeUserData.objects.get_or_create(pk=1)
     countries = Country.objects.all()
     cities = City.objects.all()
     primary_contacts = PrimaryContact.objects.all()
     web_page_temp = WebPageTemp.objects.all()
     facebook_page_temp = FacebookPageTemp.objects.all()
+    messenger_contacts = MessangerPrimary.objects.all()
 
     return {
         'openai_api': openai_api,
         'serp_api': serp_api,
         'message_template': message_template,
+        'chrome_user_path': chrome_user_path,
         'countries': countries,
         'cities': cities,
         'primary_contacts': primary_contacts,
         'web_page_temp': web_page_temp,
         'facebook_page_temp': facebook_page_temp,
+        'messenger_contacts': messenger_contacts,
 
     }
 
@@ -116,6 +123,7 @@ class SettingsView(LoginRequiredMixin, View):
         openai_form = OpenAIAPIForm(request.POST, instance=self.all_objects['openai_api'])
         serp_form = SerpAPIForm(request.POST, instance=self.all_objects['serp_api'])
         message_form = MessageTemplateForm(request.POST, instance=self.all_objects['message_template'])
+
         context = {}
         success_message = None
         error_message = None
@@ -351,24 +359,8 @@ class AutoResearchView(LoginRequiredMixin, View):
                 contacts_to_delete = PrimaryContact.objects.filter(website__icontains='instagram.com')
                 contacts_to_delete.delete()
 
-                primary_contacts = PrimaryContact.objects.filter(message_status='Default')
-
-                for contact in primary_contacts:
-                    # Generate a unique message for each contact using the imported function
-                    username = contact.name
-                    generated_message = generate_unique_message(username)
-
-                    # Update the contact's message field with the generated message
-                    contact.message = generated_message
-
-                    # Set the contact's message_status to 'Generated'
-                    contact.message_status = 'Generated'
-
-                    # Save the updated contact
-                    contact.save()
-
                 context['success'] = True
-                context['message'] = 'Messages generated and saved successfully'
+                context['message'] = 'Contact have been saved successfully'
 
             except Exception as e:
                 # Handle API request errors
@@ -660,24 +652,6 @@ class CreateMessengerContactView(LoginRequiredMixin, View):
                 created = create_messenger_contact(title, page_link, default_message, message_status, source='Search')
                 print(created)
 
-            messenger_contacts = MessangerPrimary.objects.filter(message_status='Default')
-
-            for contact in messenger_contacts:
-                # Generate a unique message for each contact using the imported function
-                username = contact.title
-
-                generated_message = generate_unique_message(username)
-
-                # Update the contact's message field with the generated message
-                contact.message = generated_message
-
-                contact.source = 'search'
-
-                contact.message_status = 'Generated'
-
-                # Save the updated contact
-                contact.save()
-
             response_data['success'] = True
             response_data['message'] = 'Messages generated and saved successfully'
         except Exception as e:
@@ -694,8 +668,13 @@ class CreateMessengerContactView(LoginRequiredMixin, View):
 class MessagingAutomationView(LoginRequiredMixin, View):
     template_name = 'send_messages.html'
 
+    def __init__(self):
+        super(MessagingAutomationView, self).__init__()
+        self.all_objects = get_all_objects()
+
     def get_context_data(self, **kwargs):
         # Retrieve the count of total contacts, messages delivered, and failed
+        chrome_user_path_form = ChromeUserDataPath(instance=self.all_objects['chrome_user_path'])
         total_contacts = MessangerPrimary.objects.count()
         messages_delivered = MessangerPrimary.objects.filter(status='delivered').count()
         failed = MessangerPrimary.objects.filter(status='failed').count()
@@ -704,24 +683,54 @@ class MessagingAutomationView(LoginRequiredMixin, View):
             'total_contacts': total_contacts,
             'messages_delivered': messages_delivered,
             'failed': failed,
+            'chrome_user_path_form': chrome_user_path_form,
         }
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         context = self.get_context_data()
         return render(request, self.template_name, context)
+
+    def post(self, request):
+        chrome_user_path_form = ChromeUserDataPath(request.POST, instance=self.all_objects['chrome_user_path'])
+
+        context = {}
+
+        try:
+            if chrome_user_path_form.is_valid():
+                chrome_user_path_form.save()
+            else:
+                context['error'] = "Please check the form."
+
+        except Exception as e:
+            context['error'] = str(e)  # Handle any exceptions and set error_message
+
+        return redirect('messaging_automation')
 
 
 class StartWhatsAppAutomation(LoginRequiredMixin, View):
 
     def post(self, request):
+        error = ''
+
         image = request.FILES.get("image")
 
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
         options = webdriver.ChromeOptions()
+        options.add_argument('--headless=new')
+        options.add_argument("--window-size=1920,1080")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--proxy-server='direct://'")
+        options.add_argument("--proxy-bypass-list=*")
+        options.add_argument("--start-maximized")
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--ignore-certificate-errors')
+        options.add_argument("--allow-insecure-localhost")
+        options.add_argument(f'user-agent={user_agent}')
         options.add_argument(Chrome_path)
-
+        options.add_argument('--disable-gpu')
+        options.add_argument('--no-sandbox')
         driver = webdriver.Chrome(options=options)
 
-        # Get all contacts with a status of "ready"
         contacts = PrimaryContact.objects.filter(status="ready")
 
         # Initialize counters
@@ -731,9 +740,13 @@ class StartWhatsAppAutomation(LoginRequiredMixin, View):
 
         link = 'https://web.whatsapp.com'
         driver.get(link)
-        time.sleep(59)
+        time.sleep(25)
+        wait = WebDriverWait(driver, 15)
+        driver.get_screenshot_as_file("screenshot.png")
+        signin = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '._1EUay')))
+        print(signin)
+        driver.get_screenshot_as_file("screenshot0.png")
 
-        # Check if an image is provided in the request
         if image:
             # Generate a dynamic image path based on the image's name or some unique identifier
             image_path = os.path.join(settings.MEDIA_ROOT, 'uploaded_images', 'image.png')
@@ -744,93 +757,99 @@ class StartWhatsAppAutomation(LoginRequiredMixin, View):
         else:
             image_path = None
 
-        for contact in contacts:
-            mobile_no = contact.phone
-            message = contact.message
-            link = f'https://web.whatsapp.com/send/?phone={mobile_no}'
-
-            driver.get(link)
-            time.sleep(25)
-
-            # Check if an image is provided in the request
-            if image_path:
+        if signin:
+            for contact in contacts:
+                mobile_no = contact.phone
                 message = contact.message
-                image_path = image_path
+                link = f'https://web.whatsapp.com/send/?phone={mobile_no}'
+                driver.get(link)
+                time.sleep(20)
 
-                try:
+                # Check if an image is provided in the request
+                if image_path:
+                    message = contact.message
+                    image_path = image_path
 
-                    attach_btn = driver.find_element(By.CSS_SELECTOR, '._1OT67')
-                    attach_btn.click()
-                    time.sleep(1)
-                    # Find and send image path to input
-                    msg_input = driver.find_elements(By.CSS_SELECTOR, '._2UNQo input')[1]
-                    msg_input.send_keys(image_path)
-                    time.sleep(1)
-                    # Start the action chain to write th
-                    actions = ActionChains(driver)
-                    for line in message.split('\n'):
-                        actions.send_keys(line)
-                        # SHIFT + ENTER to create next line
-                        actions.key_down(Keys.SHIFT).send_keys(Keys.ENTER).key_up(Keys.SHIFT)
-                    time.sleep(3)
-                    actions.send_keys(Keys.ENTER)
-                    actions.perform()
-                    time.sleep(5)
-
-                    # If successful, update the contact status to "delivered"
-
-                    contact.status = "delivered"
-                    contact.save()
-
-                    # Increment the messages delivered counter
-                    messages_delivered += 1
-
-                except Exception as e:
-                    # If the image sending fails, update the contact status to "Fields Processed"
-                    contact.status = "failed"
-                    contact.save()
-                    print(f'Error sending image: {str(e)}')
-                    # Increment the fields processed counter
-                    failed += 1
-            else:
-                try:
-                    input_box = driver.find_element(By.CSS_SELECTOR, '._3Uu1_')
-                    time.sleep(1)
-
-                    if input_box:
+                    try:
+                        attach_btn = driver.find_element(By.CSS_SELECTOR, '._1OT67')
+                        attach_btn.click()
+                        print(attach_btn)
+                        time.sleep(1)
+                        # Find and send the image path to input
+                        msg_input = driver.find_elements(By.CSS_SELECTOR, '._2UNQo input')[1]
+                        msg_input.send_keys(image_path)
+                        time.sleep(1)
+                        # Start the action chain to write the message
                         actions = ActionChains(driver)
                         for line in message.split('\n'):
                             actions.send_keys(line)
-                            # SHIFT + ENTER to create next line
+                            # SHIFT + ENTER to create the next line
                             actions.key_down(Keys.SHIFT).send_keys(Keys.ENTER).key_up(Keys.SHIFT)
+                        time.sleep(2)
                         actions.send_keys(Keys.ENTER)
                         actions.perform()
                         time.sleep(3)
+                        # If successful, update the contact status to "delivered"
                         contact.status = "delivered"
                         contact.save()
 
                         # Increment the messages delivered counter
                         messages_delivered += 1
-                    else:
+
+                    except Exception as e:
+                        # If the image sending fails, update the contact status to "failed"
+                        contact.status = "failed"
+                        contact.save()
+                        print(f'Error sending image: {str(e)}')
+                        # Increment the "failed" counter
+                        failed += 1
+                else:
+                    try:
+                        input_box = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '._3Uu1_')))
+
+                        if input_box:
+                            actions = ActionChains(driver)
+                            for line in message.split('\n'):
+                                actions.send_keys(line)
+                                # SHIFT + ENTER to create the next line
+                                actions.key_down(Keys.SHIFT).send_keys(Keys.ENTER).key_up(Keys.SHIFT)
+                            time.sleep(2)
+                            actions.send_keys(Keys.ENTER)
+                            time.sleep(2)
+                            actions.perform()
+                            time.sleep(2)
+                            contact.status = "delivered"
+                            contact.save()
+
+                            # Increment the "messages delivered" counter
+                            messages_delivered += 1
+                        else:
+                            failed += 1
+
+                    except Exception as e:
+                        # If the message sending fails, update the contact status to "failed"
+                        contact.status = "failed"
+                        contact.save()
+                        print(f'Error sending image: {str(e)}')
                         failed += 1
 
+            success = True
 
-                except Exception as e:
-                    # If the message sending fails, update the contact status to "Fields Processed"
-                    contact.status = "failed"
-                    contact.save()
+        else:
+            # Display an error message if the user needs to sign in first
+            error = "Please sign in first to try again."
+            success = False
+            print(error)
 
-                    # Increment the fields processed counter
-                    failed += 1
-
+        # Quit the driver outside the loop if needed
         driver.quit()
-
         # Return a JSON response with the results
         response_data = {
-            "success": True,
+            "success": success,
             "total_contacts": total_contacts,
             "messages_delivered": messages_delivered,
             "failed": failed,
+            "error": error,
 
         }
         return JsonResponse(response_data)
@@ -840,10 +859,21 @@ class StartMessangerAutomation(LoginRequiredMixin, View):
 
     def post(self, request):
         image = request.FILES.get("image")
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
         chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('--headless')  # Run in headless mode (no GUI)
+        chrome_options.add_argument('--headless=new')  # Run in headless mode (no GUI)
+        chrome_options.add_argument("--window-size=1920,1080")
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--proxy-server='direct://'")
+        chrome_options.add_argument("--proxy-bypass-list=*")
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument("--allow-insecure-localhost")
         chrome_options.add_argument('--disable-gpu')  # Disable GPU acceleration
         chrome_options.add_argument('--no-sandbox')  # Disable sandboxing for remote executio
+        chrome_options.add_argument(f'user-agent={user_agent}')
+        chrome_options.add_argument(Chrome_path)
 
         driver = webdriver.Chrome(options=chrome_options)
 
@@ -858,19 +888,26 @@ class StartMessangerAutomation(LoginRequiredMixin, View):
         last_recipient = ''
         link = 'https://www.messenger.com/'
         driver.get(link)
-        time.sleep(5)
+        time.sleep(20)
+        message_box = driver.find_element(By.XPATH, "//div[@aria-label='Message']")
+        if message_box:
+            get_last_recipient = driver.current_url
+            match = re.search(r"https://www\.messenger\.com/t/\d+", get_last_recipient)
 
-        email_field = driver.find_element(By.ID, 'email')
-        email_field.send_keys('03425790564')
+            if match:
+                last_recipient = match.group(0)
 
-        password_field = driver.find_element(By.ID, 'pass')
-        password_field.send_keys('bilalblogger734')  # Replace with your password
+        # email_field = driver.find_element(By.ID, 'email')
+        # email_field.send_keys('')
+
+        # password_field = driver.find_element(By.ID, 'pass')
+        # password_field.send_keys('')  # Replace with your password
 
         # Find the login button and click it
-        login_button = driver.find_element(By.ID,'loginbutton')  # Replace 'loginbutton' with the actual element ID
-        login_button.click()
-        print("logged-in")
-        time.sleep(15)
+        # login_button = driver.find_element(By.ID, 'loginbutton')  # Replace 'loginbutton' with the actual element ID
+        # login_button.click()
+        # print("logged-in")
+        # time.sleep(15)
 
         # Check if an image is provided in the request
         if image:
@@ -888,7 +925,7 @@ class StartMessangerAutomation(LoginRequiredMixin, View):
             message = contact.message
 
             driver.get(user)
-            time.sleep(15)
+            time.sleep(20)
 
             # Check if an image is provided in the request
             if image_path:
@@ -917,8 +954,9 @@ class StartMessangerAutomation(LoginRequiredMixin, View):
                             # SHIFT + ENTER to create next line
                             actions.key_down(Keys.SHIFT).send_keys(Keys.ENTER).key_up(Keys.SHIFT)
                         actions.send_keys(Keys.ENTER)
+                        time.sleep(2)
                         actions.perform()
-                        time.sleep(5)
+                        time.sleep(3)
                         get_last_recipient = driver.current_url
                         match = re.search(r"https://www\.messenger\.com/t/\d+", get_last_recipient)
 
@@ -966,8 +1004,9 @@ class StartMessangerAutomation(LoginRequiredMixin, View):
                                 # SHIFT + ENTER to create next line
                                 actions.key_down(Keys.SHIFT).send_keys(Keys.ENTER).key_up(Keys.SHIFT)
                             actions.send_keys(Keys.ENTER)
+                            time.sleep(2)
                             actions.perform()
-                            time.sleep(5)
+                            time.sleep(3)
 
                             get_last_recipient = driver.current_url
                             match = re.search(r"https://www\.messenger\.com/t/\d+", get_last_recipient)
@@ -1092,3 +1131,154 @@ class FailedContactsView(LoginRequiredMixin, View):
             'error': error
         }
         return JsonResponse(data)
+
+
+class WhatsAppSigninView(LoginRequiredMixin, View):
+
+    def post(self, request):
+
+        response_data = {}
+
+        try:
+            options = webdriver.ChromeOptions()
+            options.add_argument(Chrome_path)
+
+            driver = webdriver.Chrome(options=options)
+
+            link = 'https://web.whatsapp.com'
+            driver.get(link)
+            time.sleep(59)
+
+            driver.quit()
+
+            response_data['success'] = True
+            response_data['message'] = 'The procedure has concluded.'
+        except Exception as e:
+            # Handle any exceptions that may occur during contact creation
+            response_data['success'] = False
+            response_data['error_message'] = str(e)
+
+        return JsonResponse(response_data)
+
+    def get(self, request):
+        return JsonResponse({'success': False, 'error_message': 'Invalid request method'})
+
+
+class MessangerSigninView(LoginRequiredMixin, View):
+
+    def post(self, request):
+
+        response_data = {}
+
+        try:
+            options = webdriver.ChromeOptions()
+            options.add_argument(Chrome_path)
+
+            driver = webdriver.Chrome(options=options)
+
+            link = 'https://www.messenger.com'
+            driver.get(link)
+            time.sleep(59)
+
+            driver.quit()
+
+            response_data['success'] = True
+            response_data['message'] = 'The procedure has concluded.'
+        except Exception as e:
+            # Handle any exceptions that may occur during contact creation
+            response_data['success'] = False
+            response_data['error_message'] = str(e)
+
+        return JsonResponse(response_data)
+
+    def get(self, request):
+        return JsonResponse({'success': False, 'error_message': 'Invalid request method'})
+
+
+class MessangesWriterView(LoginRequiredMixin, View):
+    template_name = 'ai_msg_writer.html'
+
+    def __init__(self):
+        super(MessangesWriterView, self).__init__()
+        self.all_objects = get_all_objects()
+
+    def get_context(self, request):
+        whatsapp_contacts = [contact for contact in self.all_objects['primary_contacts'] if
+                             contact.message_status == "Default"]
+        messenger_contacts = [contact for contact in self.all_objects['messenger_contacts'] if
+                              contact.message_status == "Default"]
+
+        return {
+            'whatsapp_contacts': whatsapp_contacts,
+            'messenger_contacts': messenger_contacts,
+        }
+
+    def get(self, request):
+        context = self.get_context(request)
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        table = request.POST.get('table', '')
+        context = {}
+        print(table)
+        if table == 'whatsapp-table':
+
+            try:
+                primary_contacts = PrimaryContact.objects.filter(message_status='Default')
+
+                ai_messages = []
+
+                for contact in primary_contacts:
+                    # Generate a unique message for each contact using the imported function
+                    username = contact.name
+                    generated_message = generate_unique_message(username)
+
+                    # Update the contact's message field with the generated message
+                    contact.message = generated_message
+
+                    # Set the contact's message_status to 'Generated'
+                    contact.message_status = 'Generated'
+
+                    # Save the updated contact
+                    contact.save()
+
+                    ai_messages.append(generated_message)
+
+                context['success'] = True
+                context['message'] = 'Messages generated and saved successfully'
+                context['generated_messages'] = ai_messages  # Add the list to the context
+
+            except Exception as e:
+
+                context['error'] = str(e)
+
+        elif table == 'messenger-table':
+            try:
+                messenger_contacts = MessangerPrimary.objects.filter(message_status='Default')
+                ai_messages = []
+
+                for contact in messenger_contacts:
+                    # Generate a unique message for each contact using the imported function
+                    username = contact.title
+
+                    generated_message = generate_unique_message(username)
+                    print(generated_message)
+                    # Update the contact's message field with the generated message
+                    contact.message = generated_message
+
+                    contact.message_status = 'Generated'
+
+                    # Save the updated contact
+                    contact.save()
+
+                    ai_messages.append(generated_message)
+
+                context['success'] = True
+                context['message'] = 'Messages generated and saved successfully'
+                context['generated_messages'] = ai_messages
+
+            except Exception as e:
+
+                context['error'] = str(e)
+
+        return render(request, self.template_name, context)

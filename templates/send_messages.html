@@ -22,13 +22,26 @@
 <div class="messaging-container">
 
     <div class="messaging-instructions">
-        <h2>Instructions:</h2>
-        <p>
-            1. Click "Start WhatsApp Automation" wait for Chrome to open, and log in to your WhatsApp via QR code within 45 seconds.<br>
-            2. Select your image before starting the automation to include it in your message.<br>
-            3. Do not close the Chrome window; it will close itself when the task is done.<br>
-        </p>
     </div>
+                        <div class="card-content">
+                        <form method="post" action="{% url 'messaging_automation' %}">
+                            {% csrf_token %}
+                                 <div class="form-group">
+                {{ chrome_user_path_form.chrome_user_path.label_tag }}
+                {{ chrome_user_path_form.chrome_user_path }}
+            </div>
+                            <div class="divider"></div>
+                            <br>
+                            <div class="right-align">
+                                <button class="waves-effect waves-light btn" id="serp-submit" type="submit">Save Path</button>
+                            </div>
+                        </form>
+                    </div>
+<div class="signin-container">
+         <a href="#" class="whatsapp-btn" id="whatsapp-signin">Sign In to WhatsApp</a>
+    <a href="#" class="messenger-btn" id="messanger-signin">Sign In to Messenger</a>
+</div>
+
     <div class="progress-container">
         <div class="messaging-progress-bar">
             <div class="progress" id="progress"></div>
@@ -57,6 +70,82 @@
     </div>
 </div>
 <!-- Add your JavaScript code here -->
+
+<script>
+$(document).ready(function() {
+    $('#whatsapp-signin').on('click', function() {
+        // Show loading container when the button is clicked
+        $('.loading-area').addClass('active');
+
+        $.ajax({
+            url: '{% url "whatsapp-signin" %}',  // AutoResearchView URL
+            method: 'POST',  // POST request
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            success: function(response) {
+                // Handle the response as needed
+                if (response.success) {
+                $('.loading-area').removeClass('active');
+
+                } else {
+                $('.loading-area').removeClass('active');
+
+                }
+            },
+            error: function(error) {
+               $('.loading-area').removeClass('active');
+                console.log(error);
+
+            },
+            complete: function() {
+               $('.loading-area').removeClass('active');
+            }
+        });
+    });
+});
+
+
+
+</script>
+
+<script>
+$(document).ready(function() {
+    $('#messanger-signin').on('click', function() {
+        // Show loading container when the button is clicked
+        $('.loading-area').addClass('active');
+
+        $.ajax({
+            url: '{% url "messenger-signin" %}',  // AutoResearchView URL
+            method: 'POST',  // POST request
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            success: function(response) {
+                // Handle the response as needed
+                if (response.success) {
+                $('.loading-area').removeClass('active');
+
+                } else {
+                $('.loading-area').removeClass('active');
+
+                }
+            },
+            error: function(error) {
+               $('.loading-area').removeClass('active');
+                console.log(error);
+
+            },
+            complete: function() {
+               $('.loading-area').removeClass('active');
+            }
+        });
+    });
+});
+
+
+
+</script>
 
   <script>
          {% if messages_delivered %}
@@ -110,9 +199,22 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (data) {
-                // Handle success response, update UI with data
-                updateUI(data);
-            },
+               if (data.success) {
+            // Handle success response, update UI with data
+               updateUI(data);
+            } else {
+
+            if (data.error) {
+                // Display the specific signin error message to the user
+                $('.loading-area').removeClass('active');
+                showToast('Please sign in first to try again.', 'error');
+            } else {
+                // Handle other error cases
+                $('.loading-area').removeClass('active');
+                showToast('An error occurred while starting WhatsApp automation.', 'error');
+            }
+        }
+    },
             error: function () {
                 // Handle error
                 $('.loading-area').removeClass('active');
@@ -206,7 +308,7 @@ $(document).ready(function () {
 
             // Display a success message or handle other UI updates
             $('.loading-area').removeClass('active');
-            showToast('WhatsApp automation completed successfully!', 'success');
+            showToast('Messanger automation completed successfully!', 'success');
         } else {
             // Handle the case where automation did not start successfully
                 $('.loading-area').removeClass('active');

@@ -21,6 +21,16 @@ class SerpAPI(models.Model):
         db_table = 'serp_api_keys'
 
 
+class ChromeUserData(models.Model):
+    chrome_user_path = models.CharField(max_length=500)
+
+    def __str__(self):
+        return "Chrome User Data Path"
+
+    class Meta:
+        db_table = 'chrome_user_path'
+
+
 class MessageTemplate(models.Model):
     message_text = models.TextField()
     additional_info = models.TextField()
@@ -77,7 +87,7 @@ class WebPageTemp(models.Model):
 
 class FacebookPageTemp(models.Model):
     title = models.CharField(max_length=150, null=True, blank=True)
-    page_link = models.URLField( null=True, blank=True)
+    page_link = models.URLField(null=True, blank=True)
     source = models.CharField(max_length=50,
                               default='search')
 

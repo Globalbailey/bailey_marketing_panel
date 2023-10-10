@@ -132,3 +132,107 @@ body {
     #failed {
         color: #e74c3c;
     }
+
+    /* Messenger Button Styles */
+/* Container Styles */
+.signin-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Messenger Button Styles */
+.messenger-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #1877f2; /* Facebook Messenger's blue color */
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    margin: 10px; /* Add spacing between buttons */
+}
+
+.messenger-btn:hover {
+    background-color: #1558b7; /* Darker shade on hover */
+}
+
+/* WhatsApp Button Styles */
+.whatsapp-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #25d366; /* WhatsApp's green color */
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    margin: 10px; /* Add spacing between buttons */
+}
+
+.whatsapp-btn:hover {
+    background-color: #128C7E; /* Darker shade on hover */
+}
+.waves-effect {
+    background-color: #00acc1; /* Dark button background color */
+    color: #fff; /* Light button text color */
+}
+
+.waves-effect:hover {
+    background-color: #0091a1;
+}
+
+.right-align {
+    text-align: right;
+}
+
+.waves-effect {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #00acc1;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.waves-effect:hover {
+    background-color: #0091a1;
+}
+
+label {
+    font-weight: bold;
+    color: #fff;
+    text-align: left;
+    padding-bottom: 10px;
+}
+
+input[type="text"],
+textarea {
+    width: 98%;
+    float: center;
+    color: #fff;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color:#333437;
+}
+
+button.btn {
+    background-color: #FFB340;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+button.btn:hover {
+    background-color: #fdc632;
+}
+
+.divider {
+    border-top: 1px solid #E0E0E0;
+}

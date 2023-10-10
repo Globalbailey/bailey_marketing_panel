@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'web_scraping.css' %}">
+
+<style>
+
+ul {
+    list-style-type: none;
+    padding: 0;
+        margin-top: 10px;
+}
+
+li {
+    margin-bottom: 20px;
+}
+
+li::before {
+    content: "• ";
+    color: #fff;
+}
+
+li > span {
+    color: #fff;
+}
+
+p {
+    color: #fff;
+}
+</style>
+
+
+<div id="space"></div>
+<div class="loading-area">
+    <div class="loader">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
+    <div class="auto-research-container">
+        <h2>AI Will Write Messages For All Contacts</h2>
+        <form method="post" action="{% url 'messages_writer' %}">
+            {% csrf_token %}
+            <div class="dropdowns-group">
+            <div class="form-group">
+                <select id="table" name="table" class="form-control select-dropdown" required>
+                        <option value="whatsapp-table">WhatsApp Table</option>
+                        <option value="messenger-table">Messenger Table</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="ai-messages-button">Generate Messages</button>
+         </div>
+        </form>
+         <br/>
+          <p>Generate AI messages for {{ whatsapp_contacts|length }} WhatsApp contacts. </p>
+           <p>Generate AI messages for {{ messenger_contacts|length }} Messenger contacts.</p>
+        </div>
+{% if success %}
+     <div class = "table_card">
+
+     <p>{{ generated_messages|length }} messages has been generated</p>
+    <ul>
+        {% for message in generated_messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+
+     </div>
+   {% endif %}
+
+<script>
+
+  {% if success %}
+       $('.loading-area').removeClass('active');
+        showToast("{{ message }}", 'success');
+   {% endif %}
+
+     {% if error %}
+          $('.loading-area').removeClass('active');
+              showToast("{{ error }}", 'error');
+            {% endif %}
+
+$(document).ready(function() {
+    $('#ai-messages-button').on('click', function() {
+        // Show loading container when the button is clicked
+        $('.loading-area').addClass('active');
+    });
+});
+
+    </script>
+
+{% endblock %}

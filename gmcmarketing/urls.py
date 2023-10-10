@@ -29,7 +29,11 @@ from gmcapp.views import (
     EditRecordView,
     ExportSelectedRecordsView,
     CreateMessengerContactView,
-    StartWhatsAppAutomation, StartMessangerAutomation, DashboardView, FailedContactsView,
+    StartWhatsAppAutomation,
+    StartMessangerAutomation,
+    DashboardView,
+    FailedContactsView,
+    WhatsAppSigninView, MessangesWriterView, MessangerSigninView,
 )
 
 urlpatterns = [
@@ -50,7 +54,9 @@ urlpatterns = [
     path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('failed-contacts/', FailedContactsView.as_view(), name='failed_contacts'),
-
+    path('whatsapp-signin/', WhatsAppSigninView.as_view(), name='whatsapp-signin'),
+    path('messenger-signin/', MessangerSigninView.as_view(), name='messenger-signin'),
+    path('messages_writer/', MessangesWriterView.as_view(), name='messages_writer'),
 ]
 
 if settings.DEBUG:

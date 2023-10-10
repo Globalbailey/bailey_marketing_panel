@@ -1,0 +1,65 @@
+1696908624147	geckodriver	INFO	Listening on 127.0.0.1:50005
+1696908627243	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-headless" "--security-sandbox=false" "--d ... 6" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\YUMMY\\AppData\\Local\\Temp\\rust_mozprofile20pP8q"
+*** You are running in headless mode.
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1696908628086	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+console.error: "Warning: unrecognized command line flag" "-security-sandbox"
+console.error: "Warning: unrecognized command line flag" "-disable-gpu"
+1696908628219	Marionette	INFO	Listening on port 50023
+Read port: 50023
+WebDriver BiDi listening on ws://127.0.0.1:50006
+1696908628370	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.error: ({})
+DevTools listening on ws://127.0.0.1:50006/devtools/browser/26c1a2b8-17e3-44cb-9a18-b634fcefab6e
+JavaScript error: resource://gre/actors/ContentMetaChild.sys.mjs, line 179: InvalidStateError: JSWindowActorChild.sendAsyncMessage: JSWindowActorChild cannot send at the moment
+1696908638298	Marionette	INFO	Stopped listening on port 50023
+JavaScript warning: https://web.whatsapp.com/vendor1~app.6470964955d882fdfd6f.js, line 7: Script terminated by timeout at:
+986128/We/<@https://web.whatsapp.com/vendor1~app.6470964955d882fdfd6f.js:7:11466
+
+Dynamically enable window occlusion 1
+1696908819779	geckodriver	INFO	Listening on 127.0.0.1:50072
+1696908822796	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-headless" "--security-sandbox=false" "--d ... 3" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\YUMMY\\AppData\\Local\\Temp\\rust_mozprofilekFJCx0"
+*** You are running in headless mode.
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1696908823318	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+console.error: "Warning: unrecognized command line flag" "-security-sandbox"
+console.error: "Warning: unrecognized command line flag" "-disable-gpu"
+1696908823435	Marionette	INFO	Listening on port 50080
+WebDriver BiDi listening on ws://127.0.0.1:50073
+Read port: 50080
+1696908823827	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.error: ({})
+DevTools listening on ws://127.0.0.1:50073/devtools/browser/fb5bb5cc-bd64-47ae-bcbf-42a1d35eeff2
+JavaScript error: resource://gre/actors/ContentMetaChild.sys.mjs, line 179: InvalidStateError: JSWindowActorChild.sendAsyncMessage: JSWindowActorChild cannot send at the moment
+1696908833781	Marionette	INFO	Stopped listening on port 50080
+JavaScript warning: https://web.whatsapp.com/vendor1~app.6470964955d882fdfd6f.js, line 7: Script terminated by timeout at:
+986128/We/<@https://web.whatsapp.com/vendor1~app.6470964955d882fdfd6f.js:7:11466
+
+Dynamically enable window occlusion 1
+1696909009517	geckodriver	INFO	Listening on 127.0.0.1:50137
+1696909012558	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-headless" "--security-sandbox=false" "--d ... 8" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\YUMMY\\AppData\\Local\\Temp\\rust_mozprofilecY59fH"
+*** You are running in headless mode.
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1696909013116	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+console.error: "Warning: unrecognized command line flag" "-security-sandbox"
+console.error: "Warning: unrecognized command line flag" "-disable-gpu"
+1696909013235	Marionette	INFO	Listening on port 50145
+WebDriver BiDi listening on ws://127.0.0.1:50138
+Read port: 50145
+1696909013657	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.error: ({})
+DevTools listening on ws://127.0.0.1:50138/devtools/browser/e1339fa9-264a-4c0e-802b-c1e710011f72
+1696909025006	Marionette	INFO	Stopped listening on port 50145
+JavaScript warning: https://web.whatsapp.com/vendor1~app.6470964955d882fdfd6f.js, line 7: Script terminated by timeout at:
+986128/We/<@https://web.whatsapp.com/vendor1~app.6470964955d882fdfd6f.js:7:11466
+
+Dynamically enable window occlusion 1

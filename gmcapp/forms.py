@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
-from .models import OpenAIAPI, SerpAPI, MessageTemplate
+from .models import OpenAIAPI, SerpAPI, MessageTemplate, ChromeUserData
 
 
 class CustomLoginForm(AuthenticationForm):
@@ -39,6 +39,12 @@ class SerpAPIForm(forms.ModelForm):
     class Meta:
         model = SerpAPI
         fields = ['serp_api_key']
+
+
+class ChromeUserDataPath(forms.ModelForm):
+    class Meta:
+        model = ChromeUserData
+        fields = ['chrome_user_path']
 
 
 class MessageTemplateForm(forms.ModelForm):
