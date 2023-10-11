@@ -4,5 +4,4 @@ __pycache__
 .git
 .vscode
 .idea
-__init__.py
 
