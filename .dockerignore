@@ -1,0 +1,8 @@
+__pycache__
+*.pyc
+*.pyo
+.git
+.vscode
+.idea
+__init__.py
+

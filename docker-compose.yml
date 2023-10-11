@@ -1,35 +1,13 @@
 version: '3'
-
 services:
-  # Django web application
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
+    container_name: baileyapp
+    volumes:
+      - .:/baileyapp
     ports:
-      - "8000:8000"  # Expose the Django development server port
-    volumes:
-      - ./gmcmarketing:/app  # Map your Django project directory into the container
-    depends_on:
-      - db  # Depends on the database service
-    environment:
-      - DJANGO_SETTINGS_MODULE=gmcmarketing.settings  # Set your Django settings module
-
-  # SQLite database
-  db:
-    image: sqlite:latest  # Use an official SQLite image
-    volumes:
-      - ./data:/data  # Store the database file outside the container
-    environment:
-      - SQLITE_DATABASE_FILE=/data/db.sqlite3  # Set the SQLite database file path
-
-  # Django management commands
-  django-cli:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./gmcmarketing:/app  # Map your Django project directory into the container
-    depends_on:
-      - db  # Depends on the database service
-    entrypoint: ["python", "/app/manage.py"]
+      - "8000:8000"
+    command: >
+      bash -c "python manage.py makemigrations &&
+               python manage.py migrate &&
+               python manage.py runserver"
